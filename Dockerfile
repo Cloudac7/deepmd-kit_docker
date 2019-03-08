@@ -37,16 +37,16 @@ ENV tensorflow_version=$tensorflow_version
 # Install NCCL for multi-GPU communication
 RUN cd /root && git clone https://github.com/NVIDIA/nccl.git && cd nccl && \
   make CUDA_HOME=/usr/local/cuda -j NVCC_GENCODE="-gencode=arch=compute_70,code=sm_70"&& \
-  make PREFIX=/root/nccl install
-ENV LD_LIBRARY_PATH=/root/nccl/lib:$LD_LIBRARY_PATH
+  make PREFIX=/usr/local/cuda install
+ENV LD_LIBRARY_PATH=/usr/local/cuda:$LD_LIBRARY_PATH
 # If download lammps with git, there will be errors during installion. Hence we'll download lammps later on.
 RUN cd /root && \
     git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
     git clone https://github.com/tensorflow/tensorflow tensorflow -b "r$tensorflow_version" --depth=1 && \
     cd tensorflow
-# install bazel for version 0.13.1
-RUN wget https://github.com/bazelbuild/bazel/releases/download/0.13.1/bazel-0.13.1-installer-linux-x86_64.sh && \
-    bash bazel-0.13.1-installer-linux-x86_64.sh
+# install bazel for version 0.10.0
+RUN wget https://github.com/bazelbuild/bazel/releases/download/0.10.0/bazel-0.10.0-installer-linux-x86_64.sh && \
+    bash bazel-0.10.0-installer-linux-x86_64.sh
 # install tensorflow C lib
 COPY install_input /root/tensorflow
 RUN cd /root/tensorflow && ./configure < install_input &&  bazel build -c opt \
