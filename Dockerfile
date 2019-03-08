@@ -5,9 +5,7 @@ COPY repo/*repo /etc/yum.repos.d/
 # Add additional source to yum
 RUN yum makecache && yum install -y epel-release \
     centos-release-scl 
-RUN rpm -i https://developer.download.nvidia.com/compute/machine-learning/repos/rhel7/x86_64/nvidia-machine-learning-repo-rhel7-1.0.0-1.x86_64.rpm \
-    && rpm --import /etc/pki/rpm-gpg/RPM* \
-    && yum makecache
+RUN rpm --import /etc/pki/rpm-gpg/RPM* 
 # bazel, gcc, gcc-c++ and path are needed by tensorflow;   
 # autoconf, automake, cmake, libtool, make, wget are needed for protobut et. al.;  
 # epel-release, cmake3, centos-release-scl, devtoolset-4-gcc*, scl-utils are needed for deepmd-kit(need gcc5.x);
@@ -23,9 +21,6 @@ RUN yum install -y automake \
     gcc \
     gcc-c++ \
     libtool \
-    libnccl-2.4.2-1+cuda9.0 \
-    libnccl-devel-2.4.2-1+cuda9.0 \
-    libnccl-static-2.4.2-1+cuda9.0\
     make \
     patch \
     rpm-build \
@@ -39,6 +34,11 @@ ENV tensorflow_root=/opt/tensorflow xdrfile_root=/opt/xdrfile \
     PATH="/opt/conda3/bin:${PATH}"
 ARG tensorflow_version=1.8
 ENV tensorflow_version=$tensorflow_version
+# Install NCCL for multi-GPU communication
+RUN cd /root && git clone https://github.com/NVIDIA/nccl.git && cd nccl && \
+  make CUDA_HOME=/usr/local/cuda -j NVCC_GENCODE="-gencode=arch=compute_70,code=sm_70"&& \
+  make PREFIX=/root/nccl install
+ENV LD_LIBRARY_PATH=/root/nccl/lib:$LD_LIBRARY_PATH
 # If download lammps with git, there will be errors during installion. Hence we'll download lammps later on.
 RUN cd /root && \
     git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
