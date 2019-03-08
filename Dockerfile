@@ -5,7 +5,9 @@ COPY repo/*repo /etc/yum.repos.d/
 # Add additional source to yum
 RUN yum makecache && yum install -y epel-release \
     centos-release-scl 
-RUN rpm --import /etc/pki/rpm-gpg/RPM*
+RUN rpm -i https://developer.download.nvidia.com/compute/machine-learning/repos/rhel7/x86_64/nvidia-machine-learning-repo-rhel7-1.0.0-1.x86_64.rpm \
+    && rpm --import /etc/pki/rpm-gpg/RPM* \
+    yum makecache
 # bazel, gcc, gcc-c++ and path are needed by tensorflow;   
 # autoconf, automake, cmake, libtool, make, wget are needed for protobut et. al.;  
 # epel-release, cmake3, centos-release-scl, devtoolset-4-gcc*, scl-utils are needed for deepmd-kit(need gcc5.x);
@@ -38,7 +40,6 @@ ENV tensorflow_version=$tensorflow_version
 RUN cd /root && \
     git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
     git clone https://github.com/tensorflow/tensorflow tensorflow -b "r$tensorflow_version" --depth=1 && \
-    git clone -b v2.4.2-1 https://github.com/NVIDIA/nccl.git && cd nccl && make -j install && cd .. && rm -rf nccl && \
     cd tensorflow
 # install bazel for version 0.13.1
 RUN wget https://github.com/bazelbuild/bazel/releases/download/0.13.1/bazel-0.13.1-installer-linux-x86_64.sh && \
