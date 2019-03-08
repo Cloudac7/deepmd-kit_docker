@@ -1,4 +1,4 @@
-From centos:7
+FROM nvidia/cuda:9.0-cudnn7-runtime-centos7
 LABEL maintainer "Tim Chen timchen314@163.com"
 # For now, only CentOS-Base.repo (USTC source, only users in China mainland should use it) and bazel.repo are in 'repo' directory with version 0.13.1. The latest version of bazel may bring failures to the installment.
 COPY repo/*repo /etc/yum.repos.d/
@@ -23,6 +23,8 @@ RUN yum install -y automake \
     libtool \
     make \
     patch \
+    rpm-build \
+    rpmdevtools \
     scl-utils \
     unzip \
     vim \
@@ -36,6 +38,7 @@ ENV tensorflow_version=$tensorflow_version
 RUN cd /root && \
     git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
     git clone https://github.com/tensorflow/tensorflow tensorflow -b "r$tensorflow_version" --depth=1 && \
+    git clone -b v2.4.2-1 https://github.com/NVIDIA/nccl.git && cd nccl && make -j install && cd .. && rm -rf nccl && \
     cd tensorflow
 # install bazel for version 0.13.1
 RUN wget https://github.com/bazelbuild/bazel/releases/download/0.13.1/bazel-0.13.1-installer-linux-x86_64.sh && \
@@ -61,5 +64,5 @@ RUN cd /root && wget https://codeload.github.com/lammps/lammps/tar.gz/patch_31Ma
 RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
     sh Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda3/ && \
     conda config --add channels conda-forge && \
-    conda install -c conda-forge -y tensorflow=$tensorflow_version
+    conda install -c conda-forge -y tensorflow-gpu=$tensorflow_version
 CMD ["/bin/bash"]
