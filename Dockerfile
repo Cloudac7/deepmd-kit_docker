@@ -45,15 +45,14 @@ RUN cd /root && \
     git clone https://github.com/tensorflow/tensorflow tensorflow -b "r$tensorflow_version" --depth=1 && \
     cd tensorflow
 # install bazel for version 0.10.0
-RUN export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH && \
-    export LD_LIBRARY_PATH=/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH && \
+RUN export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH && \
     sh -c "echo '/usr/local/cuda-8.0/lib64' >> /etc/ld.so.conf.d/nvidia.conf" && \
     ldconfig && \
     wget https://github.com/bazelbuild/bazel/releases/download/0.10.0/bazel-0.10.0-installer-linux-x86_64.sh && \
     bash bazel-0.10.0-installer-linux-x86_64.sh
 # install tensorflow C lib
 COPY install_input /root/tensorflow
-RUN cd /root/tensorflow && ./configure < install_input &&  bazel build -c opt \
+RUN cd /root/tensorflow && ./configure < install_input &&  bazel build -c opt config=cuda \
     # --incompatible_load_argument_is_label=false \
     --copt=-msse4.2 --verbose_failures //tensorflow:libtensorflow_cc.so 
 # install the dependencies of tensorflow and xdrfile
