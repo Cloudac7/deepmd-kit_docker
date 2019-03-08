@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.0-cudnn7-runtime-centos7
+FROM nvidia/cuda:9.0-cudnn7-devel-centos7
 LABEL maintainer "Tim Chen timchen314@163.com"
 # For now, only CentOS-Base.repo (USTC source, only users in China mainland should use it) and bazel.repo are in 'repo' directory with version 0.13.1. The latest version of bazel may bring failures to the installment.
 COPY repo/*repo /etc/yum.repos.d/
@@ -7,7 +7,7 @@ RUN yum makecache && yum install -y epel-release \
     centos-release-scl 
 RUN rpm -i https://developer.download.nvidia.com/compute/machine-learning/repos/rhel7/x86_64/nvidia-machine-learning-repo-rhel7-1.0.0-1.x86_64.rpm \
     && rpm --import /etc/pki/rpm-gpg/RPM* \
-    yum makecache
+    && yum makecache
 # bazel, gcc, gcc-c++ and path are needed by tensorflow;   
 # autoconf, automake, cmake, libtool, make, wget are needed for protobut et. al.;  
 # epel-release, cmake3, centos-release-scl, devtoolset-4-gcc*, scl-utils are needed for deepmd-kit(need gcc5.x);
@@ -23,6 +23,9 @@ RUN yum install -y automake \
     gcc \
     gcc-c++ \
     libtool \
+    libnccl-2.4.2-1+cuda9.0 \
+    libnccl-devel-2.4.2-1+cuda9.0 \
+    libnccl-static-2.4.2-1+cuda9.0\
     make \
     patch \
     rpm-build \
