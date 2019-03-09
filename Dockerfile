@@ -46,12 +46,12 @@ RUN cd /root && \
     cd tensorflow
 # install bazel for version 0.13.1
 RUN wget https://github.com/bazelbuild/bazel/releases/download/0.13.1/bazel-0.13.1-installer-linux-x86_64.sh && \
-    bash bazel-0.13.1-installer-linux-x86_64.sh
+    bash bazel-0.13.1-installer-linux-x86_64.sh 
 # install tensorflow C lib
 COPY install_input /root/tensorflow
-RUN cd /root/tensorflow && ./configure < install_input &&  bazel build -c opt --config=cuda \
+RUN cd /root/tensorflow && ./configure < install_input &&  bazel build -c opt \
     # --incompatible_load_argument_is_label=false \
-    --copt=-msse4.2 --verbose_failures //tensorflow:libtensorflow_cc.so 
+    --copt=-msse4.2 --verbose_failures //tensorflow:libtensorflow_cc.so --action_env="LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
 # install the dependencies of tensorflow and xdrfile
 COPY install*.sh copy_lib.sh /root/
 RUN cd /root/tensorflow && tensorflow/contrib/makefile/download_dependencies.sh && \
