@@ -60,6 +60,7 @@ RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/lib
 # install the dependencies of tensorflow and xdrfile
 COPY install*.sh copy_lib.sh /root/
 RUN cd /root/tensorflow && sed -i 's;PROTOBUF_URL=.*;PROTOBUF_URL=\"https://mirror.bazel.build/github.com/google/protobuf/archive/v3.6.0.tar.gz\";g' tensorflow/contrib/makefile/download_dependencies.sh && \
+    tensorflow/contrib/makefile/download_dependencies.sh && \
     cd /root && sh -x install_protobuf.sh && sh -x install_eigen.sh && \
     sh -x install_nsync.sh && sh -x copy_lib.sh && sh -x install_xdrfile.sh 
 # `source /opt/rh/devtoolset-4/enable` to set gcc version to 5.x, which is needed by deepmd-kit.
