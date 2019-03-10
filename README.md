@@ -13,7 +13,7 @@ Thanks to @[frankhan91](https://github.com/frankhan91) for the maintainess and i
 ## QuickStart 
 
 ```
-git clone https://github.com/Cloudac7/deepmd-kit_docker.git deepmd-kit_docker
+git clone https://github.com/Cloudac7/deepmd-kit_docker_GPU.git deepmd-kit_docker
 cd deepmd-kit_docker && docker build -f Dockerfile -t deepmd-kit_docker:gpu .
 ```
 
@@ -22,3 +22,5 @@ It will take a few minutes to download necessary package and install them.
 The `ENV` statement in Dockerfile sets the install prefix of packages. These environment variables can be set by users themselves.
 
 The `ARG tensorflow_version` specifies the version of tensorflow to install, which can be set during the build command through `--build-arg tensorflow_version=1.12`.
+
+Version of miniconda is limitted to 4.5.1 for python 3.6 to support tf-1.12.
