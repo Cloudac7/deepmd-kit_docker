@@ -59,7 +59,7 @@ RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/lib
     --incompatible_load_argument_is_label=false \
     --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" \
     --copt=-mavx --config=cuda --verbose_failures //tensorflow:libtensorflow_cc.so \
-    # --action_env="LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
+    --action_env="LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
 # install the dependencies of tensorflow and xdrfile
 COPY install*.sh copy_lib.sh /root/
 RUN cd /root/tensorflow && tensorflow/contrib/makefile/download_dependencies.sh && \
