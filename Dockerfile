@@ -66,10 +66,11 @@ RUN cd /root/tensorflow && sed -i 's;PROTOBUF_URL=.*;PROTOBUF_URL=\"https://mirr
 # `source /opt/rh/devtoolset-4/enable` to set gcc version to 5.x, which is needed by deepmd-kit.
 # install deepmd
 RUN cd /root && source /opt/rh/devtoolset-4/enable && \ 
-    LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && ldconfig && \ 
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && \ 
     sh -x install_deepmd.sh
 # install lammps
 RUN cd /root && wget https://codeload.github.com/lammps/lammps/tar.gz/patch_31Mar2017 && \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && \
     tar xf patch_31Mar2017 && source /opt/rh/devtoolset-4/enable && sh -x install_lammps.sh
 # install tensorflow in python3 module
 RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
