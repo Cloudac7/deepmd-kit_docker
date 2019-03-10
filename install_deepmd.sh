@@ -7,7 +7,7 @@ cd $deepmd_source_dir/source
 mkdir build 
 cd build
 
-cmake -DXDRFILE_ROOT=$xdrfile_root -DTENSORFLOW_ROOT=$tensorflow_root -DCMAKE_INSTALL_PREFIX=$deepmd_root ..
+cmake -DTF_GOOGLE_BIN=true -DXDRFILE_ROOT=$xdrfile_root -DTENSORFLOW_ROOT=$tensorflow_root -DCMAKE_INSTALL_PREFIX=$deepmd_root ..
 make -j20
 make install
 cp $deepmd_source_dir/data/raw/* $deepmd_root/bin/
