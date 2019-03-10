@@ -77,5 +77,5 @@ RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh &
     sh Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda3/ && \
     conda config --add channels conda-forge && \
     #conda install -c conda-forge -y tensorflow-gpu=$tensorflow_version
-    pip install tensorflow-gpu==$tensorflow_version
+    pip install tensorflow-gpu==${tensorflow_version}.0
 CMD ["/bin/bash"]
