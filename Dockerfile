@@ -62,12 +62,10 @@ COPY install*.sh copy_lib.sh /root/
 RUN cd /root/tensorflow && sed -i 's;PROTOBUF_URL=.*;PROTOBUF_URL=\"https://mirror.bazel.build/github.com/google/protobuf/archive/v3.6.0.tar.gz\";g' tensorflow/contrib/makefile/download_dependencies.sh && \
     tensorflow/contrib/makefile/download_dependencies.sh && \
     cd /root && sh -x install_protobuf.sh && sh -x install_eigen.sh && \
-    sh -x install_nsync.sh && sh -x copy_lib.sh && sh -x install_xdrfile.sh 
+    sh -x install_nsync.sh && sh -x install_absl.sh && sh -x copy_lib.sh && sh -x install_xdrfile.sh 
 # `source /opt/rh/devtoolset-4/enable` to set gcc version to 5.x, which is needed by deepmd-kit.
 # install deepmd
-RUN cd ${tensorflow_root}/include && git clone https://github.com/abseil/abseil-cpp.git && \ 
-    ln -s abseil-cpp/absl ./absl && \
-    cd /root && source /opt/rh/devtoolset-4/enable && \ 
+RUN cd /root && source /opt/rh/devtoolset-4/enable && \ 
     sh -x install_deepmd.sh
 # install lammps
 RUN cd /root && wget https://codeload.github.com/lammps/lammps/tar.gz/patch_31Mar2017 && \
