@@ -53,7 +53,7 @@ COPY install_input /root/tensorflow
 RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && \
     cd /root/tensorflow && ./configure < install_input && \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && \ 
-    echo ${LD_LIBRARY_PATH}} && \
+    echo ${LD_LIBRARY_PATH} && \
     echo ${PATH} && \
     bazel build -c opt \
     # --incompatible_load_argument_is_label=false \
