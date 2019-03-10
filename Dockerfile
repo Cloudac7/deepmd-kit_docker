@@ -66,7 +66,7 @@ RUN cd /root/tensorflow && sed -i 's;PROTOBUF_URL=.*;PROTOBUF_URL=\"https://mirr
 # `source /opt/rh/devtoolset-4/enable` to set gcc version to 5.x, which is needed by deepmd-kit.
 # install deepmd
 RUN cd /root && source /opt/rh/devtoolset-4/enable && \ 
-    ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && ldconfig && \ 
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && ldconfig && \ 
     sh -x install_deepmd.sh
 # install lammps
 RUN cd /root && wget https://codeload.github.com/lammps/lammps/tar.gz/patch_31Mar2017 && \
