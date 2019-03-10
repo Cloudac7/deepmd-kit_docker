@@ -51,6 +51,7 @@ RUN wget https://github.com/bazelbuild/bazel/releases/download/0.13.1/bazel-0.13
 # install tensorflow C lib
 COPY install_input /root/tensorflow
 RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && \
+    ls /usr/local/cuda/lib64/stubs/ | grep libcuda.so.1 && \
     cd /root/tensorflow && ./configure < install_input && \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && \ 
     echo ${LD_LIBRARY_PATH} && \
