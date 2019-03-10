@@ -73,9 +73,8 @@ RUN cd /root && wget https://codeload.github.com/lammps/lammps/tar.gz/patch_31Ma
     LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && \
     tar xf patch_31Mar2017 && source /opt/rh/devtoolset-4/enable && sh -x install_lammps.sh
 # install tensorflow in python3 module
-RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+RUN wget https://repo.continuum.io/miniconda/Miniconda3-4.5.1-Linux-x86_64.sh && \
     sh Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda3/ && \
     conda config --add channels conda-forge && \
-    #conda install -c conda-forge -y tensorflow-gpu=$tensorflow_version
-    pip install tensorflow-gpu==${tensorflow_version}.0
+    conda install -c conda-forge -y tensorflow-gpu=$tensorflow_version
 CMD ["/bin/bash"]
