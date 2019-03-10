@@ -32,7 +32,7 @@ RUN yum install -y automake \
 ENV tensorflow_root=/opt/tensorflow xdrfile_root=/opt/xdrfile \
     deepmd_root=/opt/deepmd deepmd_source_dir=/root/deepmd-kit \
     PATH="/opt/conda3/bin:${PATH}"
-ARG tensorflow_version=1.12.0
+ARG tensorflow_version=1.12
 ENV tensorflow_version=$tensorflow_version
 # Install NCCL for multi-GPU communication
 RUN cd /root && git clone https://github.com/NVIDIA/nccl.git && cd nccl && \
@@ -43,7 +43,7 @@ ENV PATH /usr/local/cuda/bin:$PATH
 # If download lammps with git, there will be errors during installion. Hence we'll download lammps later on.
 RUN cd /root && \
     git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
-    git clone https://github.com/tensorflow/tensorflow tensorflow -b "v$tensorflow_version" --depth=1 && \
+    git clone https://github.com/tensorflow/tensorflow tensorflow -b "r$tensorflow_version" --depth=1 && \
     cd tensorflow
 # install bazel for version 0.15.0
 RUN wget https://github.com/bazelbuild/bazel/releases/download/0.15.0/bazel-0.15.0-installer-linux-x86_64.sh && \
