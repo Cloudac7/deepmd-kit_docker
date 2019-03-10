@@ -39,7 +39,7 @@ RUN cd /root && git clone https://github.com/NVIDIA/nccl.git && cd nccl && \
   make CUDA_HOME=/usr/local/cuda -j NVCC_GENCODE="-gencode=arch=compute_70,code=sm_70" && \
   make PREFIX=/usr/local/cuda install
 ENV LD_LIBRARY_PATH /usr/local/lib:/usr/local/cuda/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH \
-    PATH="/usr/local/cuda/bin:${PATH}"
+    PATH /usr/local/cuda/bin:$PATH 
 # If download lammps with git, there will be errors during installion. Hence we'll download lammps later on.
 RUN cd /root && \
     git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
@@ -56,7 +56,7 @@ RUN cd /root/tensorflow && ./configure < install_input && \
     bazel build -c opt \
     # --incompatible_load_argument_is_label=false \
     --copt=-mavx --config=cuda --verbose_failures //tensorflow:libtensorflow_cc.so \
-    --action_env=LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
+    --action_env="LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
 # install the dependencies of tensorflow and xdrfile
 COPY install*.sh copy_lib.sh /root/
 RUN cd /root/tensorflow && tensorflow/contrib/makefile/download_dependencies.sh && \
