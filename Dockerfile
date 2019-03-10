@@ -76,5 +76,6 @@ RUN cd /root && wget https://codeload.github.com/lammps/lammps/tar.gz/patch_31Ma
 RUN wget https://repo.continuum.io/miniconda/Miniconda3-4.5.1-Linux-x86_64.sh && \
     sh Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda3/ && \
     conda config --add channels conda-forge && \
-    conda install -c conda-forge -y tensorflow-gpu=$tensorflow_version
+    # conda install -c conda-forge -y tensorflow-gpu=$tensorflow_version
+    pip install tensorflow-gpu==1.12.0
 CMD ["/bin/bash"]
