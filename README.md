@@ -2,7 +2,7 @@
 
 [DeePMD-kit](https://github.com/deepmodeling/deepmd-kit#run-md-with-native-code) is a deep learning package for many-body potential energy representation, optimization, and molecular dynamics.
 
-This docker project is set up to simplify the installation process of DeePMD-kit. And GPU support is added in this fork(Cuda==9.0, CuDNN==7.0, NCCL==2.4.2).
+This docker project is set up to simplify the installation process of DeePMD-kit. And GPU support is added in this fork (`CUDA==9.0, CuDNN==7.0, NCCL==2.4.2`).
 
 Because of the error `/usr/bin/ld: warning: libcuda.so.1` could not be solved for Tensorflow 1.8, in this fork the version is updated to 1.12. The solution to the error is `ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH}`.
 
@@ -11,6 +11,8 @@ Thanks to @[TimChen314](https://github.com/TimChen314) for the inital creation o
 Thanks to @[frankhan91](https://github.com/frankhan91) for the maintainess and impression of the CPU version.
 
 ## QuickStart 
+
+### Building
 
 ```
 git clone https://github.com/Cloudac7/deepmd-kit_docker_GPU.git deepmd-kit_docker
@@ -24,3 +26,24 @@ The `ENV` statement in Dockerfile sets the install prefix of packages. These env
 The `ARG tensorflow_version` specifies the version of tensorflow to install, which can be set during the build command through `--build-arg tensorflow_version=1.12`.
 
 Version of miniconda is limitted to 4.5.1 for python 3.6 to support tf-1.12.
+
+### Training
+
+[Docker Compose](https://docs.docker.com/compose/) could be used for training in a easy way. Before going ahead, for users that item `runtime: nvidia` is not supportted, `/etc/docker/daemon.json`  should be edited like the following (from https://github.com/docker/app/issues/241):
+
+```
+// Snippet from "/etc/docker/daemon.json" on my machine
+{
+  // ...
+  "default-runtime": "nvidia",
+  "runtimes": {
+    "nvidia": {
+      "path": "/usr/bin/nvidia-container-runtime",
+      "runtimeArgs": []
+    }
+  }
+}
+```
+
+Then you could edit  `docker-compose.yml` , while changing the path of your system (including `set.00x`,  `train.json`,  etc.). With everything ready, just use `docker-compose up` to start the training.
+

@@ -1,7 +1,8 @@
-version: '3'
+version: '2.3'
 services:
   system:
     image: "deepmd-kit_docker:gpu"
+    # runtime: "nvidia"
     container_name: "dpmd_train"
     environment:
       - deepmd_root=/opt/deepmd
