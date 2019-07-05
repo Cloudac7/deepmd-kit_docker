@@ -9,4 +9,5 @@ cp -r $deepmd_source_dir/source/build/USER-DEEPMD .
 
 #Now build Lammps
 make yes-user-deepmd
+make yes-user-fep
 make serial -j20
