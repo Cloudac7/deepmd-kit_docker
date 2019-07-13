@@ -1,0 +1,11 @@
+version: '2.3'
+services:
+  system:
+    image: "deepmd-kit_docker:gpu"
+    # runtime: "nvidia"
+    container_name: "dpmd_train"
+    environment:
+      - deepmd_root=/opt/deepmd
+    volumes:
+      - /path/to/your_ststem:/root/systems/your_system
+    command: nohup sh -c 'cd /root/systems/your_system/train/train.json && /opt/deepmd/bin/dp_train train.json'
