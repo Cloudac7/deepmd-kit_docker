@@ -69,9 +69,9 @@ RUN cd /root && source /opt/rh/devtoolset-4/enable && \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && \ 
     sh -x install_deepmd.sh
 # install lammps
-RUN cd /root && wget https://codeload.github.com/lammps/lammps/tar.gz/patch_31Mar2017 && \
+RUN cd /root && wget https://codeload.github.com/lammps/lammps/tar.gz/stable_5Jun2019 && \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && \
-    tar xf patch_31Mar2017 && source /opt/rh/devtoolset-4/enable && sh -x install_lammps.sh
+    tar xf stable_5Jun2019 && source /opt/rh/devtoolset-4/enable && sh -x install_lammps.sh
 # install tensorflow in python3 module
 RUN wget https://repo.continuum.io/miniconda/Miniconda3-4.5.1-Linux-x86_64.sh && \
     sh Miniconda3-4.5.1-Linux-x86_64.sh -b -p /opt/conda3/ && \
