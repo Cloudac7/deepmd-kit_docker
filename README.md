@@ -12,10 +12,26 @@ Thanks to @[frankhan91](https://github.com/frankhan91) for the maintainess and i
 
 ## QuickStart 
 
+### Installation
+
+About the steps of installation, you could visit page https://www.tensorflow.org/install/docker for reference.
+
+#### Installing NVIDIA Driver
+
+Please check page https://github.com/NVIDIA/nvidia-docker/wiki/Frequently-Asked-Questions#how-do-i-install-the-nvidia-driver for descrption in detail.
+
+#### Installing nvidia-docker
+
+To enable the support of GPUs for your container, please following the steps on https://github.com/NVIDIA/nvidia-docker to install nvidia-docker. It is the recommended way for users with Docker 19.03 installed. 
+
+While for users with old versions, the deprecated nvidia-docker2 is needed. The up-to-date nvidia-docker is not supported by docker-compose as well. The steps of installation could be found at https://github.com/NVIDIA/nvidia-docker/tree/v2.1.0. For users had installed latest Docker 19.03, as described nvidia-docker2 packages are deperated. Don't worry, from our test, nvidia-docker2 could work well with Docker 19.03, as well as docker-compose.
+
+Note that in the future, nvidia-docker2 packages will no longer be supported. So the description of nvidia-docker2 will be removed after the fatal upgrade of docker-compose.
+
 ### Building
 
 ```
-git clone https://github.com/Cloudac7/deepmd-kit_docker_GPU.git deepmd-kit_docker
+git clone https://github.com/Cloudac7/deepmd-kit_docker.git deepmd-kit_docker
 cd deepmd-kit_docker && docker build -f Dockerfile -t deepmd-kit_docker:gpu .
 ```
 
