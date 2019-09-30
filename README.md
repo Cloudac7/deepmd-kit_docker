@@ -45,7 +45,25 @@ Version of miniconda is limitted to 4.5.1 for python 3.6 to support tf-1.12.
 
 ### Training
 
-[Docker Compose](https://docs.docker.com/compose/) could be used for training in a easy way. Before going ahead, for users that item `runtime: nvidia` is not supportted, `/etc/docker/daemon.json`  should be edited like the following (from https://github.com/docker/app/issues/241):
+#### Usage
+
+Suppose you had put the `set.00x` folder as well as `type.raw` in `example/data/water`, while the `train.json` is in `example/train`. To start the train process, just excute:
+
+``` 
+docker run --gpu all 
+```
+
+For nvidia-docker2 users:
+
+``` 
+docker run --runtime nvidia
+```
+
+
+
+#### Using docker-compose to Simplify the command
+
+[Docker Compose](https://docs.docker.com/compose/) could be used for training in a easy way. A `docker-compose.yml` for example had been put in this branch, and `runtime: nvidia` could be added to enable the gpu support. Before going ahead, for users that item `runtime: nvidia` is not supportted, `/etc/docker/daemon.json`  should be edited like the following (from https://github.com/docker/app/issues/241):
 
 ```
 // Snippet from "/etc/docker/daemon.json" on my machine
