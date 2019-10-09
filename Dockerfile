@@ -47,6 +47,9 @@ RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/lib
     cd /root/tensorflow && \
     /bin/echo -e "\n\ny\nn\nn\nn\ny\n9.0\n\n7.0\n\nn\n2.4.2\n\n3.5,5.2,6.0,6.1,7.0\nn\n\nn\n\n\n">install_input && \
     ./configure < install_input && \
+    # export LD_LIBRARY_PATH here
+    # for the following part should not be included in the final image
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && \
     bazel build -c opt \
     # --incompatible_load_argument_is_label=false
     --copt=-msse4.2 --config=cuda //tensorflow:libtensorflow_cc.so \ 
@@ -94,7 +97,8 @@ RUN cd /root && source /opt/rh/devtoolset-4/enable && \
     alias cmake='cmake3' && cd /root && \
     cd $deepmd_source_dir/source && \
     mkdir build && cd build &&\
-    cmake -DTF_GOOGLE_BIN=true -DTENSORFLOW_ROOT=$tensorflow_root -DCMAKE_INSTALL_PREFIX=$deepmd_root .. && \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && \
+    cmake3 -DTF_GOOGLE_BIN=true -DTENSORFLOW_ROOT=$tensorflow_root -DCMAKE_INSTALL_PREFIX=$deepmd_root .. && \
     make -j20 && make install && \
     cp $deepmd_source_dir/data/raw/* $deepmd_root/bin/ && \
     ls $deepmd_root/bin
@@ -104,6 +108,7 @@ RUN cd /opt && wget https://codeload.github.com/lammps/lammps/tar.gz/stable_5Jun
     cd $deepmd_source_dir/source/build && make lammps && \
     cd /opt/lammps*/src/ && \
     cp -r $deepmd_source_dir/source/build/USER-DEEPMD . && \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && \
     make yes-user-deepmd && make mpi -j4
 
 RUN ln -s $deepmd_root/bin/dp_train /usr/bin/dp_train && \
