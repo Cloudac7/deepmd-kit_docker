@@ -1,8 +1,6 @@
 FROM nvidia/cuda:9.0-cudnn7-devel-centos7
 LABEL maintainer "Tim Chen timchen314@163.com"
-# For now, only CentOS-Base.repo (USTC source, only users in China mainland should use it) and bazel.repo are in 'repo' directory with version 0.15.0. The latest version of bazel may bring failures to the installment.
-COPY repo/*repo /etc/yum.repos.d/
-# Add additional source to yum
+
 RUN yum makecache && yum install -y epel-release \
     centos-release-scl 
 RUN rpm --import /etc/pki/rpm-gpg/RPM* 
@@ -14,10 +12,12 @@ RUN yum install -y automake autoconf \
     bzip bzip2 cmake cmake3 \
     devtoolset-4-gcc* \
     git gcc gcc-c++ libtool \
-    make mpich patch rpm-build rpmdevtools \
+    make mpich-3.2* patch rpm-build rpmdevtools \
     scl-utils unzip vim wget \
-    python3 python3-pip && \
-    yum remove -y python2.7 && \
+    python3 python3-pip
+RUN mv /usr/bin/python /usr/bin/python.bak && \
+    sed -i 's;/usr/bin/python;/usr/bin/python2;g' /usr/bin/yum && \
+    sed -i 's;/usr/bin/python;/usr/bin/python2;g' /usr/libexec/urlgrabber-ext-down &&\
     ln -s /usr/bin/python3 /usr/bin/python && \
     ln -s /usr/bin/pip3 /usr/bin/pip
 
@@ -33,7 +33,7 @@ RUN cd /root && git clone https://github.com/NVIDIA/nccl.git && cd nccl && \
     make CUDA_HOME=/usr/local/cuda -j NVCC_GENCODE="-gencode=arch=compute_70,code=sm_70" && \
     make PREFIX=/usr/local/cuda install
 ENV LD_LIBRARY_PATH /usr/local/cuda/lib64/stubs:/usr/local/lib:/usr/local/cuda/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
-ENV PATH /usr/local/cuda/bin:$PATH 
+ENV PATH /usr/local/cuda/bin/:/usr/lib64/mpich-3.2/bin/:$PATH 
 # If download lammps with git, there will be errors during installion. Hence we'll download lammps later on.
 RUN cd /root && \
     git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
@@ -73,12 +73,12 @@ RUN cd /root/tensorflow && \
     cd /root/tensorflow/tensorflow/contrib/makefile/downloads/absl && \
     bazel build && \
     mkdir -p $tensorflow_root/include/ && \
-    rsync -avzh --include '*/' --include '*.h' --exclude '*' absl $tensorflow_root/include/ && \
+    rsync -avzh --include '*/' --include '*.h' --exclude '*' absl $tensorflow_root/include/
 RUN cd /root/tensorflow/ && mkdir -p $tensorflow_root/lib && \
     cp bazel-bin/tensorflow/libtensorflow_cc.so $tensorflow_root/lib/ && \
     cp bazel-bin/tensorflow/libtensorflow_framework.so $tensorflow_root/lib/ && \
     cp /tmp/proto/lib/libprotobuf.a $tensorflow_root/lib/ && \
-    cp /tmp/nsync/lib/libnsync.a $tensorflow_root/lib/ && \
+    cp /tmp/nsync/lib64/libnsync.a $tensorflow_root/lib/ && \
     mkdir -p $tensorflow_root/include/tensorflow && \
     cp -r bazel-genfiles/* $tensorflow_root/include/ && \
     cp -r tensorflow/cc $tensorflow_root/include/tensorflow && \
@@ -97,7 +97,7 @@ RUN cd /root && source /opt/rh/devtoolset-4/enable && \
     git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
     cd $deepmd_source_dir/source && \
     mkdir build && cd build &&\
-    cmake -DTF_GOOGLE_BIN=true -DXDRFILE_ROOT=$xdrfile_root -DTENSORFLOW_ROOT=$tensorflow_root -DCMAKE_INSTALL_PREFIX=$deepmd_root .. && \
+    cmake -DTF_GOOGLE_BIN=true -DTENSORFLOW_ROOT=$tensorflow_root -DCMAKE_INSTALL_PREFIX=$deepmd_root .. && \
     make -j20 && make install && \
     cp $deepmd_source_dir/data/raw/* $deepmd_root/bin/ && \
     ls $deepmd_root/bin
@@ -106,13 +106,15 @@ RUN cd /opt && wget https://codeload.github.com/lammps/lammps/tar.gz/stable_5Jun
     tar xf stable_5Jun2019 && source /opt/rh/devtoolset-4/enable && \
     cd $deepmd_source_dir/source/build && make lammps && \
     cd /opt/lammps*/src/ && \
-    cp -r $deepmd_source_dir/source/build/USER-DEEPMD . &&\
+    cp -r $deepmd_source_dir/source/build/USER-DEEPMD . && \
     make yes-user-deepmd && make mpi -j4
 
-RUN ln -s /opt/deepmd_root/bin/dp_train /usr/bin/dp_train \
-    ln -s /opt/deepmd_root/bin/dp_frz /usr/bin/dp_frz \
-    ln -s /opt/deepmd_root/bin/dp_test /usr/bin/dp_test \
-    ln -s /opt/deepmd_root/bin/dp_ipi /usr/bin/dp_ipi \
+RUN ln -s $deepmd_root/bin/dp_train /usr/bin/dp_train && \
+    ln -s $deepmd_root/bin/dp_frz /usr/bin/dp_frz && \
+    ln -s $deepmd_root/bin/dp_test /usr/bin/dp_test && \
+    ln -s $deepmd_root/bin/dp_ipi /usr/bin/dp_ipi && \
     ln -s /opt/lammps-stable/src/lmp_mpi /usr/bin
+
+RUN rm -rf /root/tensorflow /root/deepmd-kit /root/nccl
 
 CMD ["/bin/bash"]
