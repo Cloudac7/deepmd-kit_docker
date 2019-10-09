@@ -1,11 +1,17 @@
 version: '2.3'
 services:
   system:
-    image: "deepmd-kit_docker:gpu"
-    # runtime: "nvidia"
-    container_name: "dpmd_train"
-    environment:
-      - deepmd_root=/opt/deepmd
+    image: "deepmd-kit:cuda-9.0-centos7"
+    runtime: "nvidia"
+    container_name: "deepmd_train"
+    # use the following two lines to control the GPUs to use.
+    # environment:
+    #   - CUDA_VISIBLE_DEVICES=0,1
+    # modify the numbers to decide the GPUs to run on.
     volumes:
-      - /path/to/your_ststem:/root/systems/your_system
-    command: nohup sh -c 'cd /root/systems/your_system/train/train.json && /opt/deepmd/bin/dp_train train.json'
+      - /path/to/example:/root/system
+    # the left is local path which could be even a relevant one.
+    # the right is target path which should be absolute in container.
+    # entering the train folder by default
+    working_dir: /root/system/train
+    command: 'dp_train train.json'

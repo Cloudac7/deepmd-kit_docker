@@ -2,13 +2,15 @@
 
 [DeePMD-kit](https://github.com/deepmodeling/deepmd-kit#run-md-with-native-code) is a deep learning package for many-body potential energy representation, optimization, and molecular dynamics.
 
-This docker project is set up to simplify the installation process of DeePMD-kit. And GPU support is added in this fork (`CUDA==9.0, CuDNN==7.0, NCCL==2.4.2`).
+This docker project is set up to simplify the installation process of DeePMD-kit. And GPU support is added in this fork (`CUDA==9.0, CuDNN==7, NCCL==2.4.2`).
 
-Because of the error `/usr/bin/ld: warning: libcuda.so.1` could not be solved for Tensorflow 1.8, in this fork the version is updated to 1.12. The solution to the error is `ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH}`.
+Because of the error `/usr/bin/ld: warning: libcuda.so.1` could not be solved properly for tensorflow 1.8, in this fork the version is updated to 1.12. The solution to the error is `ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH}`.
+
+But another issue appeared when add `/usr/local/cuda/lib64/stubs` to `$LD_LIBRARY_PATH` from `ENV` flag, so it is exported only when necessary.
 
 Thanks to @[TimChen314](https://github.com/TimChen314) for the inital creation of this docker project.
 
-Thanks to @[frankhan91](https://github.com/frankhan91) for the maintainess and impression of the CPU version.
+Thanks to @[frankhan91](https://github.com/frankhan91) for the maintainess and impression of the CPU version. (Which is stored in the CPU branch.)
 
 ## QuickStart 
 
@@ -41,25 +43,50 @@ The `ENV` statement in Dockerfile sets the install prefix of packages. These env
 
 The `ARG tensorflow_version` specifies the version of tensorflow to install, which can be set during the build command through `--build-arg tensorflow_version=1.12`.
 
-Version of miniconda is limitted to 4.5.1 for python 3.6 to support tf-1.12.
-
 ### Training
 
 #### Usage
 
-Suppose you had put the `set.00x` folder as well as `type.raw` in `example/data/water`, while the `train.json` is in `example/train`. To start the train process, just excute:
+Suppose you had put the `set.00x` folder as well as `type.raw` in `example/data/water`, while the `train.json` is in `example/train`. The structure of the `example` folder looked like this:
 
-``` 
-docker run --gpu all 
+```
+example
+├── data
+│   └── water
+│       ├── set.000
+│       │   ├── box.npy
+│       │   ├── coord.npy
+│       │   └── energy.npy
+│       ├── set.001
+│       │   ├── box.npy
+│       │   ├── coord.npy
+│       │   └── energy.npy
+│       ├── set.002
+│       │   ├── box.npy
+│       │   ├── coord.npy
+│       │   └── energy.npy
+...     ... ...
+│       └── type.raw
+└── train
+    └── train.json
 ```
 
-For nvidia-docker2 users:
+To start the train process, just excute:
 
 ``` 
-docker run --runtime nvidia
+docker run -d -P \
+    --gpus all \
+    --name deepmd \
+    --mount type=bind,source=/absolute/path/of/example,target=/root/system \
+    deepmd-kit:cuda-9.0-centos7 \
+    /bin/bash -c "cd /root/system/train && dp_train train.json"
 ```
 
+`/absolute/path/of/example` is the absolute path of the local `example` folder, while `/root/system` is the target path for the folder to place in the docker container. Then  `/bin/bash -c "cd /root/system/train && dp_train train.json"` could enter the target folder and start the train process.
 
+To modify the GPU to run on, please change  `all` to the number of specific GPUs, such as `0,1`. 
+
+For nvidia-docker2 users, just replace ` --gpus all`  to `--runtime nvidia `. But for changing the GPUs to use, you need to add `-e CUDA_VISIBLE_DEVICES=0,1 `  after `docker run`.
 
 #### Using docker-compose to Simplify the command
 
@@ -79,5 +106,5 @@ docker run --runtime nvidia
 }
 ```
 
-Then you could edit  `docker-compose.yml` , while changing the path of your system (including `set.00x`,  `train.json`,  etc.). With everything ready, just use `docker-compose up` to start the training.
+Then you could edit  `docker-compose.yml` , while changing the path of your system (including `set.00x`,  `train.json`,  etc.). For more detail information about the file, please read the example `docker-compose.yml`. With everything ready, just use `docker-compose up` to start the training.
 
