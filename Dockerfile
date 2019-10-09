@@ -32,7 +32,7 @@ RUN pip install numpy && \
 RUN cd /root && git clone https://github.com/NVIDIA/nccl.git && cd nccl && \
     make CUDA_HOME=/usr/local/cuda -j NVCC_GENCODE="-gencode=arch=compute_70,code=sm_70" && \
     make PREFIX=/usr/local/cuda install
-ENV LD_LIBRARY_PATH /usr/local/cuda/lib64/stubs:/usr/local/lib:/usr/local/cuda/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH /usr/local/lib:/usr/local/cuda/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
 ENV PATH /usr/local/cuda/bin/:/usr/lib64/mpich-3.2/bin/:$PATH 
 # If download lammps with git, there will be errors during installion. Hence we'll download lammps later on.
 RUN cd /root && \
