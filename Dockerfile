@@ -43,7 +43,6 @@ RUN cd /root && \
 RUN wget https://github.com/bazelbuild/bazel/releases/download/0.15.0/bazel-0.15.0-installer-linux-x86_64.sh && \
     bash bazel-0.15.0-installer-linux-x86_64.sh 
 # install tensorflow C lib
-COPY install_input /root/tensorflow
 RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && \
     cd /root/tensorflow && \
     /bin/echo -e "\n\ny\nn\nn\nn\ny\n9.0\n\n7.0\n\nn\n2.4.2\n\n3.5,5.2,6.0,6.1,7.0\nn\n\nn\n\n\n">install_input && \
@@ -53,7 +52,6 @@ RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/lib
     --copt=-msse4.2 --config=cuda //tensorflow:libtensorflow_cc.so \ 
     --action_env="LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
 # install the dependencies of tensorflow and xdrfile
-COPY install*.sh copy_lib.sh /root/
 RUN cd /root/tensorflow && \
     sed -i 's;PROTOBUF_URL=.*;PROTOBUF_URL=\"https://mirror.bazel.build/github.com/google/protobuf/archive/v3.6.0.tar.gz\";g' tensorflow/contrib/makefile/download_dependencies.sh && \
     tensorflow/contrib/makefile/download_dependencies.sh && \
@@ -94,7 +92,6 @@ RUN cd /root/tensorflow/ && mkdir -p $tensorflow_root/lib && \
 # install deepmd
 RUN cd /root && source /opt/rh/devtoolset-4/enable && \ 
     alias cmake='cmake3' && cd /root && \
-    git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
     cd $deepmd_source_dir/source && \
     mkdir build && cd build &&\
     cmake -DTF_GOOGLE_BIN=true -DTENSORFLOW_ROOT=$tensorflow_root -DCMAKE_INSTALL_PREFIX=$deepmd_root .. && \
