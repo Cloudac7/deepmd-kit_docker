@@ -36,7 +36,7 @@ ENV LD_LIBRARY_PATH /usr/local/lib:/usr/local/cuda/lib:/usr/local/cuda/lib64:/us
 ENV PATH /usr/local/cuda/bin/:/usr/lib64/mpich-3.2/bin/:$PATH 
 # If download lammps with git, there will be errors during installion. Hence we'll download lammps later on.
 RUN cd /root && \
-    git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
+    git clone https://github.com/deepmodeling/deepmd-kit.git -b "r0.12" deepmd-kit && \
     git clone https://github.com/tensorflow/tensorflow tensorflow -b "r$tensorflow_version" --depth=1 && \
     cd tensorflow
 # install bazel for version 0.15.0
