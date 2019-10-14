@@ -29,14 +29,14 @@ ENV tensorflow_root=/opt/tensorflow \
 RUN pip install numpy && \
     pip install tensorflow-gpu==${tensorflow_version}.0
 # Install NCCL for multi-GPU communication
-RUN cd /root && git clone https://github.com/NVIDIA/nccl.git && cd nccl && \
+RUN cd /root && git clone https://github.com/NVIDIA/nccl.git -b v2.4.8-1 && cd nccl && \
     make CUDA_HOME=/usr/local/cuda -j NVCC_GENCODE="-gencode=arch=compute_70,code=sm_70" && \
     make PREFIX=/usr/local/cuda install
 ENV LD_LIBRARY_PATH /usr/local/lib:/usr/local/cuda/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
 ENV PATH /usr/local/cuda/bin/:/usr/lib64/mpich-3.2/bin/:$PATH 
 # If download lammps with git, there will be errors during installion. Hence we'll download lammps later on.
 RUN cd /root && \
-    git clone https://github.com/deepmodeling/deepmd-kit.git -b "r0.12" deepmd-kit && \
+    git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
     git clone https://github.com/tensorflow/tensorflow tensorflow -b "r$tensorflow_version" --depth=1 && \
     cd tensorflow
 # install bazel for version 0.15.0
@@ -45,7 +45,7 @@ RUN wget https://github.com/bazelbuild/bazel/releases/download/0.15.0/bazel-0.15
 # install tensorflow C lib
 RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && \
     cd /root/tensorflow && \
-    /bin/echo -e "\n\ny\nn\nn\nn\ny\n9.0\n\n7.0\n\nn\n2.4.2\n\n3.5,5.2,6.0,6.1,7.0\nn\n\nn\n\n\n">install_input && \
+    /bin/echo -e "\n\ny\nn\nn\nn\ny\n9.0\n\n7\n\nn\n2.4.8\n\n3.5,5.2,6.0,6.1,7.0\nn\n\nn\n\n\n">install_input && \
     ./configure < install_input && \
     # export LD_LIBRARY_PATH here
     # for the following part should not be included in the final image
@@ -95,8 +95,10 @@ RUN cd /root/tensorflow/ && mkdir -p $tensorflow_root/lib && \
 # install deepmd
 RUN cd /root && source /opt/rh/devtoolset-4/enable && \ 
     alias cmake='cmake3' && cd /root && \
-    cd $deepmd_source_dir/source && \
-    mkdir build && cd build &&\
+    cd $deepmd_source_dir && \
+    pip install m2r && \
+    pip install . && \
+    mkdir source/build && cd source/build &&\
     LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && \
     cmake3 -DTF_GOOGLE_BIN=true -DTENSORFLOW_ROOT=$tensorflow_root -DCMAKE_INSTALL_PREFIX=$deepmd_root .. && \
     make -j20 && make install && \
@@ -111,10 +113,7 @@ RUN cd /opt && wget https://codeload.github.com/lammps/lammps/tar.gz/stable_5Jun
     LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} && \
     make yes-user-deepmd && make mpi -j4
 
-RUN ln -s $deepmd_root/bin/dp_train /usr/bin/dp_train && \
-    ln -s $deepmd_root/bin/dp_frz /usr/bin/dp_frz && \
-    ln -s $deepmd_root/bin/dp_test /usr/bin/dp_test && \
-    ln -s $deepmd_root/bin/dp_ipi /usr/bin/dp_ipi && \
+RUN ln -s $deepmd_root/bin/dp_ipi /usr/bin/dp_ipi && \
     ln -s /opt/lammps-stable/src/lmp_mpi /usr/bin
 
 RUN rm -rf /root/tensorflow /root/deepmd-kit /root/nccl
