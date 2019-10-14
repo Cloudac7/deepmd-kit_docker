@@ -21,10 +21,12 @@ RUN apt-get update && apt-get install -y --allow-downgrades --allow-change-held-
         wget \
         ca-certificates \
         libcudnn7=${CUDNN_VERSION} \
+        libcudnn7-dev=${CUDNN_VERSION} \
         libnccl2=${NCCL_VERSION} \
         libnccl-dev=${NCCL_VERSION} \
         libjpeg-dev \
         libpng-dev \
+        rsync \
         pkg-config \
         python${PYTHON_VERSION} \
         python${PYTHON_VERSION}-dev \
@@ -32,7 +34,9 @@ RUN apt-get update && apt-get install -y --allow-downgrades --allow-change-held-
         libibverbs1 \
         ibverbs-providers \ 
         zip zlib1g-dev unzip \
-        mpich
+        mpich \
+        libmpich-dev \
+        libhdf5-mpich-dev
 
 RUN apt-get install -y python${PYTHON_VERSION}-distutils
 RUN ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python
@@ -56,12 +60,29 @@ RUN chmod +x bazel-0.24.1-installer-linux-x86_64.sh && \
 WORKDIR /tensorflow
 # temporarily using CUDA stubs
 RUN ldconfig /usr/local/cuda/targets/x86_64-linux/lib/stubs && \
-    ln -s /usr/local/cuda/targets/x86_64-linux/lib/stubs/libcuda.so /usr/local/cuda/targets/x86_64-linux/lib/stubs/libcuda.so.1 && \
     export TF_NEED_CUDA=1 && \
-    export TF_NEED_TENSORRT=0 && \
-    export TF_CUDA_COMPUTE_CAPABILITIES=3.5,5.2,6.0,6.1,7.0 && \
     export TF_CUDA_VERSION=10.0 && \
     export TF_CUDNN_VERSION=7 && \
+    export TF_CUDA_COMPUTE_CAPABILITIES=6.0 && \
+    export TF_NCCL_VERSION=2.4 && \
+    export CC_OPT_FLAGS="-mavx -mavx2 -msse4.2 -mfma" && \
+    export TF_NEED_GCP=0 && \
+    export TF_NEED_HDFS=0 && \
+    export TF_NEED_JEMALLOC=1 && \
+    export TF_NEED_OPENCL=0 && \
+    export TF_CUDA_CLANG=0 && \
+    export TF_NEED_MKL=0 && \
+    export TF_ENABLE_XLA=0 && \
+    export TF_NEED_AWS=0 && \
+    export TF_NEED_KAFKA=0 && \
+    export TF_NEED_NGRAPH=0 && \
+    export TF_DOWNLOAD_CLANG=0 && \
+    export TF_NEED_TENSORRT=0 && \
+    export TF_NEED_GDR=0 && \
+    export TF_NEED_VERBS=0 && \
+    export TF_NEED_OPENCL_SYCL=0 && \
+    export PYTHON_BIN_PATH=/usr/bin/python3.6 && \
+    export PYTHON_LIB_PATH=/usr/lib/python3.6/dist-packages && \
     bazel build -c opt --config=cuda \
     --copt=-msse4.2 --copt=-mavx --copt=-mavx2 --copt=-mfma \
     //tensorflow:libtensorflow_cc.so --action_env="LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" && \
@@ -90,30 +111,36 @@ RUN mkdir /tensorflow_root && \
     find . -name "*.cc" -type f -delete
 
 WORKDIR  /deepmd-kit
-
-RUN pip install  && \
+RUN pip install m2r && \
     pip install . && \
     mkdir source/build && \
     cd source/build && \
     ldconfig /usr/local/cuda/targets/x86_64-linux/lib/stubs && \
     export deepmd_root="/deepmd_root" && \
     export tensorflow_root="/tensorflow_root" && \
-    cmake -DTF_GOOGLE_BIN=0 -DTENSORFLOW_ROOT=$tensorflow_root -DCMAKE_INSTALL_PREFIX=$deepmd_root .. && \
+    cmake -DTENSORFLOW_ROOT=$tensorflow_root -DCMAKE_INSTALL_PREFIX=$deepmd_root .. && \
     make && \
     make install && \
     make lammps && \
     ldconfig
 
+WORKDIR /lammps-stable/src
+RUN cp -r /deepmd-kit/source/build/USER-DEEPMD /lammps-stable/src/ && \
+    make yes-user-deepmd && \
+    make mpi -j4
+
 RUN ln -s /deepmd_root/bin/dp_ipi /usr/bin/dp_ipi && \
     mv /lammps-stable/src/lmp_mpi /usr/bin
 
-RUN bazel clean \
-  && rm -rf /root/.cache \
-  && rm -rf /lammps-stable \
-  && rm -rf /bazel-*-installer-linux-x86_64.sh \
-  && rm -rf /tensorflow \
-  && rm -rf /usr/bin/bazel \
-  && rm -rf /usr/lib/bazel \
-  && rm -rf /tmp
+WORKDIR /root
+RUN cd /tensorflow && bazel clean && \
+    cd /root && \
+    rm -rf /root/.cache && \
+    rm -rf /lammps-stable && \
+    rm -rf /bazel-*-installer-linux-x86_64.sh && \
+    rm -rf /tensorflow && \
+    rm -rf /usr/bin/bazel && \
+    rm -rf /usr/lib/bazel && \
+    rm -rf /tmp
 
-COPY Dockerfile ./
+CMD ["/bin/bash"]
