@@ -1,7 +1,8 @@
 version: '2.3'
 services:
   system:
-    image: "deepmd-kit:cuda-9.0-centos7"
+    # image name should be modified to the same with your building version.
+    image: "deepmd-kit:latest-cuda-10.0-ubuntu18.04"
     runtime: "nvidia"
     container_name: "deepmd_train"
     # use the following two lines to control the GPUs to use.
@@ -14,4 +15,4 @@ services:
     # the right is target path which should be absolute in container.
     # entering the train folder by default
     working_dir: /root/system/train
-    command: 'dp_train train.json'
+    command: 'dp train train.json'
