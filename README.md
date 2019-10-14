@@ -34,7 +34,8 @@ Note that in the future, nvidia-docker2 packages will no longer be supported. So
 
 ```
 git clone https://github.com/Cloudac7/deepmd-kit_docker.git deepmd-kit_docker
-cd deepmd-kit_docker && docker build -f Dockerfile -t deepmd-kit_docker:gpu .
+cd deepmd-kit_docker/latest/ubuntu18.04
+docker build -f Dockerfile -t deepmd-kit_docker:latest-cuda-10.0-ubuntu18.04 .
 ```
 
 It will take a few minutes to download necessary package and install them.
@@ -46,6 +47,8 @@ The `ARG tensorflow_version` specifies the version of tensorflow to install, whi
 ### Training
 
 #### Usage
+
+Take the latest deepmd-kit v1.0 for example.
 
 Suppose you had put the `set.00x` folder as well as `type.raw` in `example/data/water`, while the `train.json` is in `example/train`. The structure of the `example` folder looked like this:
 
@@ -79,10 +82,10 @@ docker run -d -P \
     --name deepmd \
     --mount type=bind,source=/absolute/path/of/example,target=/root/system \
     deepmd-kit:cuda-9.0-centos7 \
-    /bin/bash -c "cd /root/system/train && dp_train train.json"
+    /bin/bash -c "cd /root/system/train && dp train train.json"
 ```
 
-`/absolute/path/of/example` is the absolute path of the local `example` folder, while `/root/system` is the target path for the folder to place in the docker container. Then  `/bin/bash -c "cd /root/system/train && dp_train train.json"` could enter the target folder and start the train process.
+`/absolute/path/of/example` is the absolute path of the local `example` folder, while `/root/system` is the target path for the folder to place in the docker container. Then  `/bin/bash -c "cd /root/system/train && dp train train.json"` could enter the target folder and start the train process.
 
 To modify the GPU to run on, please change  `all` to the number of specific GPUs, such as `0,1`. 
 
